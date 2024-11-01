@@ -40,23 +40,56 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
             (campsite: Campsite) => campsite.type === filter
           );
 
+    filtered = filtered.filter(
+      (campsite: Campsite) =>
+        campsite.site_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        campsite.location_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     if (mapBounds) {
-      filtered = filtered.filter((campsite: Campsite) => {
+      const inBoundsCampsites = filtered.filter((campsite: Campsite) => {
         const latLng = L.latLng(
           campsite.coordinates.latitude,
           campsite.coordinates.longitude
         );
         return mapBounds.contains(latLng);
       });
+
+      if (inBoundsCampsites.length === 0 && filtered.length > 0) {
+        const centerPoint = mapBounds.getCenter();
+        let closestCampsite = filtered[0];
+        let minDistance = Number.MAX_VALUE;
+
+        filtered.forEach((campsite: Campsite) => {
+          const campsitePoint = L.latLng(
+            campsite.coordinates.latitude,
+            campsite.coordinates.longitude
+          );
+          const distance = centerPoint.distanceTo(campsitePoint);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestCampsite = campsite;
+          }
+        });
+
+        const newBounds = L.latLngBounds(
+          L.latLng(
+            closestCampsite.coordinates.latitude - 0.1,
+            closestCampsite.coordinates.longitude - 0.1
+          ),
+          L.latLng(
+            closestCampsite.coordinates.latitude + 0.1,
+            closestCampsite.coordinates.longitude + 0.1
+          )
+        );
+        setMapBounds(newBounds);
+      }
+
+      setFilteredCampsites(inBoundsCampsites);
+    } else {
+      setFilteredCampsites(filtered);
     }
-
-    const searchFiltered = filtered.filter(
-      (campsite: Campsite) =>
-        campsite.site_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        campsite.location_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    setFilteredCampsites(searchFiltered);
   }, [filter, mapBounds, searchTerm]);
 
   return (
