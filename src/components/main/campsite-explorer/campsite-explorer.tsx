@@ -69,6 +69,19 @@ function BoundsTracker({
   return null;
 }
 
+function BoundsHandler() {
+  const map = useMap();
+  const { mapBounds } = useCampsiteContext();
+
+  useEffect(() => {
+    if (mapBounds) {
+      map.fitBounds(mapBounds);
+    }
+  }, [mapBounds, map]);
+
+  return null;
+}
+
 export default function CampsiteExplorer() {
   const { filteredCampsites, isMapView, setMapBounds } = useCampsiteContext();
 
@@ -87,6 +100,7 @@ export default function CampsiteExplorer() {
           className="w-full h-[calc(100vh-10rem)] z-0"
         >
           <LocationMarker />
+          <BoundsHandler />
           <BoundsTracker onBoundsChange={handleBoundsChange} />
           <LayersControl position="topright">
             {/* Base layers */}
