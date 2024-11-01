@@ -20,6 +20,9 @@ import { Label } from "@/components/ui/label";
 import { Map, List } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import campsitesData from "/src/assets/json/NYS_campsite_data.json";
+import L from "leaflet";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 type Campsite = {
   location_name: string;
@@ -33,6 +36,18 @@ type Campsite = {
 
 // Type check the imported data
 const campsites: Campsite[] = campsitesData;
+
+// Set up default icon configuration
+const DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 export default function CampsiteExplorer() {
   const [isMapView, setIsMapView] = useState(true);
@@ -51,7 +66,7 @@ export default function CampsiteExplorer() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <Select onValueChange={(value) => setFilter(value)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] ">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
@@ -82,7 +97,7 @@ export default function CampsiteExplorer() {
         <MapContainer
           center={[43.8, -74.5]}
           zoom={7}
-          style={{ height: "600px", width: "100%" }}
+          className="w-full h-[calc(100vh-10rem)] z-0" // -10rem to allow space for header/nav
         >
           <LayersControl position="topright">
             {/* Base layers */}
