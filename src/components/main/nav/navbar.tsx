@@ -5,7 +5,7 @@ import { Tent, Search, User, Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ThemeToggle } from "@/components/theme-toggle";
+// import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Navbar() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -21,7 +21,7 @@ export default function Navbar() {
 
   return (
     <nav className="border-b">
-      <div className=" container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className=" container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
@@ -75,7 +75,7 @@ export default function Navbar() {
               )}
               <span className="sr-only">Toggle theme</span>
             </Button> */}
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             <Button
               variant="ghost"
               size="icon"

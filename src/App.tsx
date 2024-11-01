@@ -7,7 +7,7 @@ import CampsiteExplorer from "./components/main/campsite-explorer/campsite-explo
 function App() {
   return (
     <BrowserRouter>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <Navbar></Navbar>
         <CampsiteExplorer />
       </ThemeProvider>
