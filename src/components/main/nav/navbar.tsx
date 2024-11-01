@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Tent, User, Menu } from "lucide-react";
+import { Tent, Menu, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";

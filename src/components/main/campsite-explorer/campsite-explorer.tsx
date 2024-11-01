@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -8,34 +8,17 @@ import {
   LayerGroup,
 } from "react-leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Map, List } from "lucide-react";
+
 import "leaflet/dist/leaflet.css";
-import campsitesData from "/src/assets/json/NYS_campsite_data.json";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
-type Campsite = {
-  location_name: string;
-  site_name: string;
-  type: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
-};
-
-// Type check the imported data
-const campsites: Campsite[] = campsitesData;
+import { useMap, useMapEvents } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import { useCampsiteContext } from "@/context/CampsiteContext";
+import CampsiteFilters from "./campsite-filters";
 
 // Set up default icon configuration
 const DefaultIcon = L.icon({
@@ -49,56 +32,62 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-export default function CampsiteExplorer() {
-  const [isMapView, setIsMapView] = useState(true);
-  const [filter, setFilter] = useState("ALL");
-  const [filteredCampsites, setFilteredCampsites] = useState(campsites);
+function LocationMarker() {
+  const map = useMap();
 
   useEffect(() => {
-    setFilteredCampsites(
-      filter === "ALL"
-        ? campsites
-        : campsites.filter((campsite) => campsite.type === filter)
-    );
-  }, [filter]);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          map.setView([latitude, longitude], 12);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  }, [map]);
+
+  return null;
+}
+
+function BoundsTracker({
+  onBoundsChange,
+}: {
+  onBoundsChange: (bounds: L.LatLngBounds) => void;
+}) {
+  const map = useMapEvents({
+    moveend: () => {
+      onBoundsChange(map.getBounds());
+    },
+    zoomend: () => {
+      onBoundsChange(map.getBounds());
+    },
+  });
+
+  return null;
+}
+
+export default function CampsiteExplorer() {
+  const { filteredCampsites, isMapView, setMapBounds } = useCampsiteContext();
+
+  const handleBoundsChange = (bounds: L.LatLngBounds) => {
+    setMapBounds(bounds);
+  };
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <Select onValueChange={(value) => setFilter(value)}>
-          <SelectTrigger className="w-[180px] ">
-            <SelectValue placeholder="Filter by type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Types</SelectItem>
-            <SelectItem value="PRIMITIVE CAMPSITE">
-              Primitive Campsite
-            </SelectItem>
-            <SelectItem value="LEAN-TO">Lean-to</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="view-toggle"
-            checked={isMapView}
-            onCheckedChange={setIsMapView}
-          />
-          <Label htmlFor="view-toggle">
-            {isMapView ? (
-              <Map className="h-4 w-4" />
-            ) : (
-              <List className="h-4 w-4" />
-            )}
-          </Label>
-        </div>
-      </div>
+      <CampsiteFilters />
 
       {isMapView ? (
         <MapContainer
           center={[43.8, -74.5]}
-          zoom={7}
-          className="w-full h-[calc(100vh-10rem)] z-0" // -10rem to allow space for header/nav
+          zoom={12}
+          className="w-full h-[calc(100vh-10rem)] z-0"
         >
+          <LocationMarker />
+          <BoundsTracker onBoundsChange={handleBoundsChange} />
           <LayersControl position="topright">
             {/* Base layers */}
             <LayersControl.BaseLayer checked name="OpenStreetMap">
@@ -138,26 +127,31 @@ export default function CampsiteExplorer() {
               </LayerGroup>
             </LayersControl.BaseLayer>
           </LayersControl>
-          {filteredCampsites.map((campsite, index) => (
-            <Marker
-              key={index}
-              position={[
-                campsite.coordinates.latitude,
-                campsite.coordinates.longitude,
-              ]}
-            >
-              <Popup>
-                <strong>{campsite.site_name}</strong>
-                <br />
-                Type: {campsite.type}
-                <br />
-                Location: {campsite.location_name}
-              </Popup>
-            </Marker>
-          ))}
+          <MarkerClusterGroup
+            chunkedLoading
+            maxClusterRadius={50} // Adjust this value to control cluster size
+          >
+            {filteredCampsites.map((campsite, index) => (
+              <Marker
+                key={index}
+                position={[
+                  campsite.coordinates.latitude,
+                  campsite.coordinates.longitude,
+                ]}
+              >
+                <Popup>
+                  <strong>{campsite.site_name}</strong>
+                  <br />
+                  Type: {campsite.type}
+                  <br />
+                  Location: {campsite.location_name}
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
         </MapContainer>
       ) : (
-        <div className="grid grid-cols-1 ">
+        <div className="grid grid-cols-1">
           {filteredCampsites.map((campsite, index) => (
             <Card key={index}>
               <CardHeader>
