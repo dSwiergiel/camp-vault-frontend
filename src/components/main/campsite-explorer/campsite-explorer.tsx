@@ -23,7 +23,10 @@ import campsitesData from "/src/assets/json/NYS_campsite_data.json";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { useMap } from "react-leaflet";
+import { useMap, useMapEvents } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 type Campsite = {
   location_name: string;
@@ -70,18 +73,51 @@ function LocationMarker() {
   return null;
 }
 
+function BoundsTracker({
+  onBoundsChange,
+}: {
+  onBoundsChange: (bounds: L.LatLngBounds) => void;
+}) {
+  const map = useMapEvents({
+    moveend: () => {
+      onBoundsChange(map.getBounds());
+    },
+    zoomend: () => {
+      onBoundsChange(map.getBounds());
+    },
+  });
+
+  return null;
+}
+
 export default function CampsiteExplorer() {
   const [isMapView, setIsMapView] = useState(true);
   const [filter, setFilter] = useState("ALL");
   const [filteredCampsites, setFilteredCampsites] = useState(campsites);
+  const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
 
   useEffect(() => {
-    setFilteredCampsites(
+    let filtered =
       filter === "ALL"
         ? campsites
-        : campsites.filter((campsite) => campsite.type === filter)
-    );
-  }, [filter]);
+        : campsites.filter((campsite) => campsite.type === filter);
+
+    if (mapBounds) {
+      filtered = filtered.filter((campsite) => {
+        const latLng = L.latLng(
+          campsite.coordinates.latitude,
+          campsite.coordinates.longitude
+        );
+        return mapBounds.contains(latLng);
+      });
+    }
+
+    setFilteredCampsites(filtered);
+  }, [filter, mapBounds]);
+
+  const handleBoundsChange = (bounds: L.LatLngBounds) => {
+    setMapBounds(bounds);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -121,6 +157,7 @@ export default function CampsiteExplorer() {
           className="w-full h-[calc(100vh-10rem)] z-0"
         >
           <LocationMarker />
+          <BoundsTracker onBoundsChange={handleBoundsChange} />
           <LayersControl position="topright">
             {/* Base layers */}
             <LayersControl.BaseLayer checked name="OpenStreetMap">
@@ -160,23 +197,28 @@ export default function CampsiteExplorer() {
               </LayerGroup>
             </LayersControl.BaseLayer>
           </LayersControl>
-          {filteredCampsites.map((campsite, index) => (
-            <Marker
-              key={index}
-              position={[
-                campsite.coordinates.latitude,
-                campsite.coordinates.longitude,
-              ]}
-            >
-              <Popup>
-                <strong>{campsite.site_name}</strong>
-                <br />
-                Type: {campsite.type}
-                <br />
-                Location: {campsite.location_name}
-              </Popup>
-            </Marker>
-          ))}
+          <MarkerClusterGroup
+            chunkedLoading
+            maxClusterRadius={50} // Adjust this value to control cluster size
+          >
+            {filteredCampsites.map((campsite, index) => (
+              <Marker
+                key={index}
+                position={[
+                  campsite.coordinates.latitude,
+                  campsite.coordinates.longitude,
+                ]}
+              >
+                <Popup>
+                  <strong>{campsite.site_name}</strong>
+                  <br />
+                  Type: {campsite.type}
+                  <br />
+                  Location: {campsite.location_name}
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
         </MapContainer>
       ) : (
         <div className="grid grid-cols-1 ">
