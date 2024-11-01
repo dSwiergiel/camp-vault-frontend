@@ -5,6 +5,7 @@ import {
   Marker,
   Popup,
   LayersControl,
+  LayerGroup,
 } from "react-leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -84,21 +85,42 @@ export default function CampsiteExplorer() {
           style={{ height: "600px", width: "100%" }}
         >
           <LayersControl position="topright">
-            {/* Default base layer */}
+            {/* Base layers */}
             <LayersControl.BaseLayer checked name="OpenStreetMap">
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                maxZoom={17}
               />
             </LayersControl.BaseLayer>
 
-            {/* Satellite layer */}
             <LayersControl.BaseLayer name="Satellite">
-              <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                attribution='&copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, and the GIS User Community'
-                // maxZoom={19}
-              />
+              <LayerGroup>
+                <TileLayer
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  attribution='&copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics'
+                  maxZoom={25}
+                  minZoom={5}
+                />
+              </LayerGroup>
+            </LayersControl.BaseLayer>
+
+            <LayersControl.BaseLayer name="Satellite with Labels">
+              <LayerGroup>
+                <TileLayer
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  attribution='&copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics'
+                  maxZoom={25}
+                  minZoom={5}
+                />
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  opacity={0.5}
+                  maxZoom={25}
+                  minZoom={5}
+                />
+              </LayerGroup>
             </LayersControl.BaseLayer>
           </LayersControl>
           {filteredCampsites.map((campsite, index) => (
