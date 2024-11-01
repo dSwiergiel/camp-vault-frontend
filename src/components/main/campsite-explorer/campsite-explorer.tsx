@@ -53,6 +53,25 @@ export default function CampsiteExplorer() {
   const [isMapView, setIsMapView] = useState(true);
   const [filter, setFilter] = useState("ALL");
   const [filteredCampsites, setFilteredCampsites] = useState(campsites);
+  const [userLocation, setUserLocation] = useState<[number, number]>([
+    43.8, -74.5,
+  ]);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     setFilteredCampsites(
@@ -95,9 +114,9 @@ export default function CampsiteExplorer() {
 
       {isMapView ? (
         <MapContainer
-          center={[43.8, -74.5]}
-          zoom={7}
-          className="w-full h-[calc(100vh-10rem)] z-0" // -10rem to allow space for header/nav
+          center={userLocation}
+          zoom={12}
+          className="w-full h-[calc(100vh-10rem)] z-0"
         >
           <LayersControl position="topright">
             {/* Base layers */}
