@@ -17,6 +17,8 @@ interface CampsiteContextType {
   filteredCampsites: Campsite[];
   isMapView: boolean;
   setIsMapView: (isMap: boolean) => void;
+  searchTerm: string;
+  setSearchTerm: (searchTerm: string) => void;
 }
 
 const CampsiteContext = createContext<CampsiteContextType | undefined>(
@@ -28,6 +30,7 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
   const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
   const [isMapView, setIsMapView] = useState(true);
   const [filteredCampsites, setFilteredCampsites] = useState(campsitesData);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     let filtered =
@@ -47,8 +50,14 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    setFilteredCampsites(filtered);
-  }, [filter, mapBounds]);
+    const searchFiltered = filtered.filter(
+      (campsite: Campsite) =>
+        campsite.site_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        campsite.location_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setFilteredCampsites(searchFiltered);
+  }, [filter, mapBounds, searchTerm]);
 
   return (
     <CampsiteContext.Provider
@@ -60,6 +69,8 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
         filteredCampsites,
         isMapView,
         setIsMapView,
+        searchTerm,
+        setSearchTerm,
       }}
     >
       {children}
