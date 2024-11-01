@@ -64,9 +64,9 @@
 /* Add these styles */
 html,
 body {
-  @apply min-h-full bg-background;
+  @apply min-h-full bg-background text-foreground;
 }
 
 #root {
-  @apply min-h-full;
+  @apply min-h-full text-foreground;
 }
