@@ -23,6 +23,7 @@ import campsitesData from "/src/assets/json/NYS_campsite_data.json";
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { useMap } from "react-leaflet";
 
 type Campsite = {
   location_name: string;
@@ -49,29 +50,30 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-export default function CampsiteExplorer() {
-  const [isMapView, setIsMapView] = useState(true);
-  const [filter, setFilter] = useState("ALL");
-  const [filteredCampsites, setFilteredCampsites] = useState(campsites);
-  const [userLocation, setUserLocation] = useState<[number, number]>([
-    43.8, -74.5,
-  ]);
+function LocationMarker() {
+  const map = useMap();
 
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([
-            position.coords.latitude,
-            position.coords.longitude,
-          ]);
+          const { latitude, longitude } = position.coords;
+          map.setView([latitude, longitude], 12);
         },
         (error) => {
           console.error("Error getting location:", error);
         }
       );
     }
-  }, []);
+  }, [map]);
+
+  return null;
+}
+
+export default function CampsiteExplorer() {
+  const [isMapView, setIsMapView] = useState(true);
+  const [filter, setFilter] = useState("ALL");
+  const [filteredCampsites, setFilteredCampsites] = useState(campsites);
 
   useEffect(() => {
     setFilteredCampsites(
@@ -114,10 +116,11 @@ export default function CampsiteExplorer() {
 
       {isMapView ? (
         <MapContainer
-          center={userLocation}
+          center={[43.8, -74.5]}
           zoom={12}
           className="w-full h-[calc(100vh-10rem)] z-0"
         >
+          <LocationMarker />
           <LayersControl position="topright">
             {/* Base layers */}
             <LayersControl.BaseLayer checked name="OpenStreetMap">
