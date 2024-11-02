@@ -55,7 +55,11 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
         return mapBounds.contains(latLng);
       });
 
-      if (inBoundsCampsites.length === 0 && filtered.length > 0) {
+      if (
+        inBoundsCampsites.length === 0 &&
+        filtered.length > 0 &&
+        (filter !== "ALL" || searchTerm !== "")
+      ) {
         const centerPoint = mapBounds.getCenter();
         let closestCampsite = filtered[0];
         let minDistance = Number.MAX_VALUE;
