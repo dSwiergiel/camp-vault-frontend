@@ -23,6 +23,8 @@ interface CampsiteContextType {
   setIsUserLocationLoading: (isUserLocationLoading: boolean) => void;
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
+  userCoordinates: GeolocationCoordinates | null;
+  setUserCoordinates: (coordinates: GeolocationCoordinates | null) => void;
 }
 
 const CampsiteContext = createContext<CampsiteContextType | undefined>(
@@ -36,6 +38,8 @@ function CampsiteProvider({ children }: { children: ReactNode }) {
   const [isMapView, setIsMapView] = useState(true);
   const [filteredCampsites, setFilteredCampsites] = useState(campsitesData);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userCoordinates, setUserCoordinates] =
+    useState<GeolocationCoordinates | null>(null);
   const [isLoading, setIsLoading] = useState(true); // will be for when we fetch data from the API
 
   useEffect(() => {
@@ -118,6 +122,8 @@ function CampsiteProvider({ children }: { children: ReactNode }) {
         setIsUserLocationLoading,
         isLoading,
         setIsLoading,
+        userCoordinates,
+        setUserCoordinates,
       }}
     >
       {children}

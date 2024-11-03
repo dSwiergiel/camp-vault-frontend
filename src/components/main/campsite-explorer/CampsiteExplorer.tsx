@@ -6,10 +6,10 @@ import {
   Popup,
   LayersControl,
   LayerGroup,
-  ZoomControl,
 } from "react-leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -22,6 +22,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import { useCampsiteContext } from "@/context/CampsiteContext/CampsiteContext";
 import CampsiteFilters from "./CampsiteFilters";
 import SkeletonCard from "@/components/ui/skeleton-card";
+import { LocateFixed, Plus, Minus } from "lucide-react";
 
 // Set up default icon configuration
 const DefaultIcon = L.icon({
@@ -37,7 +38,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 function LocationMarker() {
   const map = useMap();
-  const { setIsUserLocationLoading } = useCampsiteContext();
+  const { setIsUserLocationLoading, setUserCoordinates } = useCampsiteContext();
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -46,6 +47,7 @@ function LocationMarker() {
           const { latitude, longitude } = position.coords;
           map.setView([latitude, longitude], 12);
           setIsUserLocationLoading(false);
+          setUserCoordinates(position.coords);
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -90,6 +92,63 @@ function BoundsHandler() {
   return null;
 }
 
+function CustomZoomControl() {
+  const map = useMap();
+  const { userCoordinates } = useCampsiteContext();
+
+  const handleZoomIn = () => {
+    map.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    map.zoomOut();
+  };
+
+  const handleLocate = () => {
+    if (userCoordinates) {
+      map.setView([userCoordinates.latitude, userCoordinates.longitude], 12);
+    }
+  };
+
+  return (
+    <div className="leaflet-bottom leaflet-right">
+      <div className="leaflet-control flex flex-col">
+        <Button
+          className="border-b rounded-none rounded-t-sm"
+          onClick={handleZoomIn}
+          variant="outline"
+          size="icon"
+          title="Zoom in"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <Button
+          className={`border-b rounded-none ${
+            !userCoordinates ? "rounded-b-sm" : ""
+          }`}
+          onClick={handleZoomOut}
+          variant="outline"
+          size="icon"
+          title="Zoom out"
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
+        {userCoordinates && (
+          <Button
+            className="rounded-none rounded-b-sm"
+            onClick={handleLocate}
+            variant="outline"
+            size="icon"
+            title="Go to my location"
+          >
+            <LocateFixed className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function CampsiteExplorer() {
   const {
     filteredCampsites,
@@ -118,14 +177,14 @@ export default function CampsiteExplorer() {
         <MapContainer
           center={[43.371122, -74.730233]}
           zoom={7}
-          className="w-full h-[calc(100vh-14rem)] z-0 rounded-sm"
+          className="w-full h-[calc(100vh-14.5rem)] z-0 rounded-sm"
           zoomControl={false}
           attributionControl={false}
         >
           <LocationMarker />
           <BoundsHandler />
           <BoundsTracker onBoundsChange={handleBoundsChange} />
-          <ZoomControl position="bottomright" />
+          <CustomZoomControl />
           <LayersControl position="bottomleft">
             {/* Base layers */}
             <LayersControl.BaseLayer checked name="OpenStreetMap">
@@ -178,22 +237,21 @@ export default function CampsiteExplorer() {
                 ]}
               >
                 <Popup>
-                  <strong>
-                    <a
-                      href={`https://www.google.com/maps?q=${campsite.coordinates.latitude},${campsite.coordinates.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {campsite.site_name}
-                    </a>
-                  </strong>
+                  <strong>{campsite.site_name}</strong>
                   <br />
                   Type: {campsite.type}
                   <br />
                   Location: {campsite.location_name}
                   <br />
-                  Coordinates: {campsite.coordinates.latitude.toFixed(4)},{" "}
-                  {campsite.coordinates.longitude.toFixed(4)}
+                  Coordinates:{" "}
+                  <a
+                    href={`https://www.google.com/maps?q=${campsite.coordinates.latitude},${campsite.coordinates.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {campsite.coordinates.latitude.toFixed(4)},{" "}
+                    {campsite.coordinates.longitude.toFixed(4)}
+                  </a>
                 </Popup>
               </Marker>
             ))}
