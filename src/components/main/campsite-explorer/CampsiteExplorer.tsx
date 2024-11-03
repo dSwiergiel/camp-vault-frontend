@@ -6,7 +6,6 @@ import {
   Popup,
   LayersControl,
   LayerGroup,
-  ZoomControl,
 } from "react-leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
