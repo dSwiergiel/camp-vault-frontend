@@ -7,7 +7,7 @@ import {
 } from "react";
 import L from "leaflet";
 import campsitesData from "/src/assets/json/NYS_campsite_data.json";
-import { Campsite } from "../types/campsite";
+import { Campsite } from "../../types/campsite";
 
 interface CampsiteContextType {
   filter: string;
@@ -19,18 +19,24 @@ interface CampsiteContextType {
   setIsMapView: (isMap: boolean) => void;
   searchTerm: string;
   setSearchTerm: (searchTerm: string) => void;
+  isUserLocationLoading: boolean;
+  setIsUserLocationLoading: (isUserLocationLoading: boolean) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
 }
 
 const CampsiteContext = createContext<CampsiteContextType | undefined>(
   undefined
 );
 
-export function CampsiteProvider({ children }: { children: ReactNode }) {
+function CampsiteProvider({ children }: { children: ReactNode }) {
   const [filter, setFilter] = useState("ALL");
+  const [isUserLocationLoading, setIsUserLocationLoading] = useState(true);
   const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
   const [isMapView, setIsMapView] = useState(true);
   const [filteredCampsites, setFilteredCampsites] = useState(campsitesData);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true); // will be for when we fetch data from the API
 
   useEffect(() => {
     let filtered =
@@ -108,6 +114,10 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
         setIsMapView,
         searchTerm,
         setSearchTerm,
+        isUserLocationLoading,
+        setIsUserLocationLoading,
+        isLoading,
+        setIsLoading,
       }}
     >
       {children}
@@ -115,7 +125,7 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useCampsiteContext() {
+const useCampsiteContext = () => {
   const context = useContext(CampsiteContext);
   if (context === undefined) {
     throw new Error(
@@ -123,4 +133,6 @@ export function useCampsiteContext() {
     );
   }
   return context;
-}
+};
+
+export { CampsiteProvider, useCampsiteContext };

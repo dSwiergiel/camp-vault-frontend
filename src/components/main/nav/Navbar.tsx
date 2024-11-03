@@ -3,12 +3,12 @@ import { Tent, Menu, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/main/nav/ThemeToggle";
 
 export default function Navbar() {
   return (
-    <nav className="border-b bg-card">
-      <div className=" container mx-auto px-4">
+    <nav className="border-b border-input bg-card">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
