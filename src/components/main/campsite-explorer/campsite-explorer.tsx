@@ -17,7 +17,7 @@ import { useMap, useMapEvents } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-import { useCampsiteContext } from "@/context/CampsiteContext";
+import { useCampsiteContext } from "@/context/CampsiteContext/CampsiteContext";
 import CampsiteFilters from "./campsite-filters";
 
 // Set up default icon configuration
@@ -93,7 +93,7 @@ export default function CampsiteExplorer() {
     <div className="container mx-auto p-4">
       <CampsiteFilters />
 
-      {isMapView ? (
+      <div className={`${!isMapView && "hidden"}`}>
         <MapContainer
           center={[43.8, -74.5]}
           zoom={12}
@@ -164,7 +164,9 @@ export default function CampsiteExplorer() {
             ))}
           </MarkerClusterGroup>
         </MapContainer>
-      ) : (
+      </div>
+
+      {!isMapView && (
         <div className="grid grid-cols-1">
           {filteredCampsites.map((campsite, index) => (
             <Card key={index}>

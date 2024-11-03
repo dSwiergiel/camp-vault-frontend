@@ -1,9 +1,9 @@
 import "./App.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/context/ThemeContext/theme-provider";
 import Navbar from "./components/main/nav/navbar";
 import { BrowserRouter } from "react-router-dom";
 import CampsiteExplorer from "./components/main/campsite-explorer/campsite-explorer";
-import { CampsiteProvider } from "./context/CampsiteContext";
+import { CampsiteProvider } from "./context/CampsiteContext/CampsiteContext";
 
 function App() {
   return (

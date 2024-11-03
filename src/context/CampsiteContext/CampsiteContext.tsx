@@ -7,7 +7,7 @@ import {
 } from "react";
 import L from "leaflet";
 import campsitesData from "/src/assets/json/NYS_campsite_data.json";
-import { Campsite } from "../types/campsite";
+import { Campsite } from "../../types/campsite";
 
 interface CampsiteContextType {
   filter: string;
@@ -25,7 +25,7 @@ const CampsiteContext = createContext<CampsiteContextType | undefined>(
   undefined
 );
 
-export function CampsiteProvider({ children }: { children: ReactNode }) {
+function CampsiteProvider({ children }: { children: ReactNode }) {
   const [filter, setFilter] = useState("ALL");
   const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
   const [isMapView, setIsMapView] = useState(true);
@@ -115,7 +115,7 @@ export function CampsiteProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useCampsiteContext() {
+const useCampsiteContext = () => {
   const context = useContext(CampsiteContext);
   if (context === undefined) {
     throw new Error(
@@ -123,4 +123,6 @@ export function useCampsiteContext() {
     );
   }
   return context;
-}
+};
+
+export { CampsiteProvider, useCampsiteContext };

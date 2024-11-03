@@ -8,7 +8,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Map, List } from "lucide-react";
-import { useCampsiteContext } from "@/context/CampsiteContext";
+import { useCampsiteContext } from "@/context/CampsiteContext/CampsiteContext";
 import { Input } from "@/components/ui/input";
 
 export default function CampsiteFilters() {
