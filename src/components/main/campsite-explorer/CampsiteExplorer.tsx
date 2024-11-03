@@ -114,29 +114,9 @@ function CustomZoomControl() {
   return (
     <div className="leaflet-bottom leaflet-right">
       <div className="leaflet-control flex flex-col">
-        <Button
-          className="border-b rounded-none rounded-t-sm"
-          onClick={handleZoomIn}
-          variant="outline"
-          size="icon"
-          title="Zoom in"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-        <Button
-          className={`border-b rounded-none ${
-            !userCoordinates ? "rounded-b-sm" : ""
-          }`}
-          onClick={handleZoomOut}
-          variant="outline"
-          size="icon"
-          title="Zoom out"
-        >
-          <Minus className="h-4 w-4" />
-        </Button>
         {userCoordinates && (
           <Button
-            className="rounded-none rounded-b-sm"
+            className="border-b rounded-none rounded-t-sm"
             onClick={handleLocate}
             variant="outline"
             size="icon"
@@ -145,6 +125,26 @@ function CustomZoomControl() {
             <LocateFixed className="h-4 w-4" />
           </Button>
         )}
+        <Button
+          className={`border-b rounded-none ${
+            !userCoordinates ? "rounded-t-sm" : ""
+          }`}
+          onClick={handleZoomIn}
+          variant="outline"
+          size="icon"
+          title="Zoom in"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <Button
+          className="rounded-none rounded-b-sm"
+          onClick={handleZoomOut}
+          variant="outline"
+          size="icon"
+          title="Zoom out"
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
