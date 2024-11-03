@@ -23,7 +23,7 @@ export default defineConfig({
       },
     },
   },
-  assetsInclude: ["./src/assets"],
+  assetsInclude: ["./src/assets", "**/*.svg"],
   json: {
     stringify: true,
   },
