@@ -118,7 +118,7 @@ export default function CampsiteExplorer() {
         <MapContainer
           center={[43.371122, -74.730233]}
           zoom={7}
-          className="w-full h-[calc(100vh-13rem)] z-0 rounded-sm"
+          className="w-full h-[calc(100vh-14rem)] z-0 rounded-sm"
           zoomControl={false}
           attributionControl={false}
         >
