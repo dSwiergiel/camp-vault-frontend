@@ -23,6 +23,7 @@ import { useCampsiteContext } from "@/context/CampsiteContext/CampsiteContext";
 import CampsiteFilters from "./CampsiteFilters";
 import SkeletonCard from "@/components/ui/skeleton-card";
 import { LocateFixed, Plus, Minus } from "lucide-react";
+import React from "react";
 
 // Set up default icon configuration
 const DefaultIcon = L.icon({
@@ -62,22 +63,24 @@ function LocationMarker() {
   return null;
 }
 
-function BoundsTracker({
-  onBoundsChange,
-}: {
-  onBoundsChange: (bounds: L.LatLngBounds) => void;
-}) {
-  const map = useMapEvents({
-    moveend: () => {
-      onBoundsChange(map.getBounds());
-    },
-    zoomend: () => {
-      onBoundsChange(map.getBounds());
-    },
-  });
+const BoundsTracker = React.memo(
+  ({
+    onBoundsChange,
+  }: {
+    onBoundsChange: (bounds: L.LatLngBounds) => void;
+  }) => {
+    const map = useMapEvents({
+      moveend: () => {
+        onBoundsChange(map.getBounds());
+      },
+      zoomend: () => {
+        onBoundsChange(map.getBounds());
+      },
+    });
 
-  return null;
-}
+    return null;
+  }
+);
 
 function BoundsHandler() {
   const map = useMap();
