@@ -9,7 +9,7 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <Navbar></Navbar>
+        <Navbar />
         <CampsiteProvider>
           <CampsiteExplorer />
         </CampsiteProvider>
